@@ -1,33 +1,31 @@
 #!/usr/bin/env bash
-# Start/Stops/Restarts. Script to be used with manage_my_process
+# This script Starts/Stops/Restarts manage_my_process script
 
-file="/var/run/my_process.pid"
-process_start()
+argv1=$1
+tmpfile="/var/run/my_process.pid"
+
+startLoop_n_createFile()
 {
     ./manage_my_process &
-    echo "$!" > "$file"
+    echo "$!" > "$tmpfile"
 }
-
-process_stop()
+killLoop_n_rmFile()
 {
-    kill "$(cat $file)"
-    rm $file
+    #kill "$(cat "$tmpfile")"
+    sudo pkill -f "./manage_my_process"
+    rm "$tmpfile"
 }
-case "$1" in
-     start)
-	 process_start
-	 echo "manage_my_process started"
-	 ;;
-     stop)
-	 process_stop
-	 echo "manage_my_process stopped"
-	 ;;
-     restart)
-	 process_stop
-	 process_start
-	 echo "manage_my_process restarted"
-	 ;;
-     *)
-	 echo "Usage: manage_my_process {start|stop|restart}"
-	 ;;
+case "$argv1" in
+    start) echo "manage_my_process started"
+	startLoop_n_createFile
+	;;
+    stop) echo "manage_my_process stopped"
+	killLoop_n_rmFile
+	;;
+    restart) echo "manage_my_process restarted"
+	killLoop_n_rmFile
+	startLoop_n_createFile
+	;;
+    *) echo "Usage: manage_my_process {start|stop|restart}"
+	;;
 esac
