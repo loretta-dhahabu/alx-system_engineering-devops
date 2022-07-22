@@ -1,33 +1,20 @@
 #!/usr/bin/env bash
-# Start/Stops/Restarts. Script to be used with manage_my_process
+# Infinite loop that creates a file with pid, catches signal, and removes file/exits:
+# Ctrl-C (SIGINT), kill (SIGTERM), and ctrl-| (SIGQUIT)
 
-file="/var/run/my_process.pid"
-process_start()
+rmfile_n_exit()
 {
-    ./manage_my_process &
-    echo "$!" > "$file"
+    rm -f /var/run/myscript.pid;
+    exit
 }
+trap "echo 'Y U no love me?!'" SIGINT
+trap "echo 'I hate the kill command'; rmfile_n_exit" SIGTERM
+trap "echo 'I hate the kill command'; rmfile_n_exit" SIGQUIT
 
-process_stop()
-{
-    kill "$(cat $file)"
-    rm $file
-}
-case "$1" in
-     start)
-	 process_start
-	 echo "manage_my_process started"
-	 ;;
-     stop)
-	 process_stop
-	 echo "manage_my_process stopped"
-	 ;;
-     restart)
-	 process_stop
-	 process_start
-	 echo "manage_my_process restarted"
-	 ;;
-     *)
-	 echo "Usage: manage_my_process {start|stop|restart}"
-	 ;;
-esac
+
+echo $$ >> /var/run/myscript.pid
+while (true)
+do
+    echo 'To infinity and beyond'
+    sleep 2
+done
